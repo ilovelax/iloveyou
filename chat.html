@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>留言室</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="stylesheet" href="http://luoaxin.oss-cn-shanghai.aliyuncs.com/amazeui.min.css">
+<link rel="alternate icon" href="http://veasion.oss-cn-shanghai.aliyuncs.com/luoaxin/favicon.ico">
+<script src="http://veasion.oss-cn-shanghai.aliyuncs.com/luoaxin/jquery.min.js"></script>
+<style>
+html, body{height:100%;}
+.title {text-align: center;display:none;}
+.am-text-primary{max-height:1em;}
+.chat-content{height: 85%;min-height: 29rem;}
+.chat-content-container {height: 100%;overflow-y: scroll;border: 1px solid silver;}
+#send{margin-left: 10px;}
+#myEditor{width: 80%;height: 3rem;display: inline-block;overflow-y: hidden;}
+</style>
+</head>
+<body>
+    <div class="title">
+        <div class="am-g am-g-fixed">
+            <div class="am-u-sm-12">
+                <h1 class="am-text-primary">留言室</h1>
+            </div>
+        </div>
+    </div>
+    <div class="chat-content">
+        <div class="am-g am-g-fixed chat-content-container">
+            <div class="am-u-sm-12">
+                <ul id="message-list" class="am-comments-list am-comments-list-flip"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="message-input am-margin-top">
+        <div class="am-g am-g-fixed">
+            <div class="am-u-sm-12">
+                <form class="am-form">
+                    <div class="am-form-group">
+						<textarea id="myEditor" wrap="virtual"></textarea>
+						<div style="width: 18%;height: 4rem;display:inline-block;">
+							<button id="send" type="button" class="am-btn am-btn-primary">发送</button>
+						</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        $(function() {
+			// 获取来源
+			var index = location.href.lastIndexOf("?");
+			var source = index != -1 ? decodeURI(location.href.substring(index + 1)) : getSource();
+            var text = $('#myEditor');
+        	// 新建WebSocket对象
+	        var socket;
+			socket= new WebSocket('ws://59.110.241.52/WebSocket/iloveyou');
+	        socket.onopen = function(){
+				console.log("连接服务器成功！");
+			}
+	        // 处理服务器端发送的数据
+	        socket.onmessage = function(event) {
+	            addMessage(event.data);
+	        }
+			socket.onerror = function(e) {
+				alert("连接服务器发生错误！");
+				console.error(e);
+			};
+			socket.onclose = function(){
+				console.log("连接关闭！");
+			}
+	        // 点击Send按钮时的操作
+	        $('#send').on('click', function() {
+	            if (!text.val()) {    // 判断消息输入框是否为空
+	                // 消息输入框获取焦点
+	                text.focus();
+	                // 添加抖动效果
+	                $('.edui-container').addClass('am-animation-shake');
+	                setTimeout("$('.edui-container').removeClass('am-animation-shake')", 1000);
+	            } else {
+	                 // 发送消息
+	                 socket.send(JSON.stringify({
+	                     content : text.val().replace(/\n/g, '<br>'),
+						 source : source
+	                 }));
+	                 // 清空消息输入框
+	                 text.val('');
+	                 // 消息输入框获取焦点
+	                 text.focus();
+	             }
+	         });
+
+            // 把消息添加到聊天内容中
+            function addMessage(message) {
+                message = JSON.parse(message);
+				var img = message.isSelf ? "http://luoaxin.oss-cn-shanghai.aliyuncs.com/self.png" : "http://luoaxin.oss-cn-shanghai.aliyuncs.com/others.jpg";
+                if(message.nickName == 'Veasion'){
+					img = "http://luoaxin.oss-cn-shanghai.aliyuncs.com/veasion.png";
+                }else if(message.nickName == '小公主' && message.isSelf){
+                	img = "http://luoaxin.oss-cn-shanghai.aliyuncs.com/ax.jpg";
+                }
+                if(message.isAdmin){
+                	message.nickName = '<font color="RED">' + message.nickName + '</font>';
+                }
+                var width = message.content.replace(/[\u0391-\uFFE5]/g, "__").length * 8 + 40;
+                var messageItem = '<li class="am-comment '
+                        + (message.isSelf ? 'am-comment-flip' : 'am-comment')
+                        + '"><a href="javascript:void(0)" ><img src="'+ img +'" alt="" class="am-comment-avatar" width="48" height="48"/></a>'
+                        + '<div class="am-comment-main" style="width:' + width + 'px;"><header class="am-comment-hd"><div class="am-comment-meta">'
+                        + '<a href="javascript:void(0)" class="am-comment-author">'
+                        + message.nickName + '</a> <time>' + message.date
+                        + '</time></div></header>'
+                        + '<div class="am-comment-bd">' + message.content
+                        + '</div></div></li>';
+                $(messageItem).appendTo('#message-list');
+                // 把滚动条滚动到底部
+                $(".chat-content-container").scrollTop($(".chat-content-container")[0].scrollHeight);
+            }
+        });
+		
+		function getSource(){
+			var system = {};
+			var p = navigator.platform;
+			system.win = p.indexOf("Win") == 0;
+			system.mac = p.indexOf("Mac") == 0;
+			system.x11 = (p == "X11") || (p.indexOf("Linux") == 0);
+			if(system.win||system.mac||system.xll) 
+				return $(window).width() > 600 ? "电脑" : "平板";
+			else 
+				return "手机";
+		}
+    </script>
+</body>
+</html>

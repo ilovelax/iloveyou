@@ -2,13 +2,13 @@
 <html>
   <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta http-equiv="Pragma" content="no-cache">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="author" content="http://github.com/veasion">
   <link rel="shortcut icon" href="http://veasion.oss-cn-shanghai.aliyuncs.com/luoaxin/favicon.ico">
   <title>我的告白</title>
   <style type="text/css">
     @font-face {font-family:'RuiHeiXiTi';src:url('./RuiHeiXiTi.otf') format('truetype');font-weight:bold;font-style:normal}
+    #chat-div{z-index:2000;position: fixed;left: 0;right: 0;display: none;width: 28px;height: 28px;}
   </style>
   <link rel="stylesheet" href="http://veasion.oss-cn-shanghai.aliyuncs.com/luoaxin/love.css" />
   </head>
@@ -330,6 +330,11 @@
           setTimeout(function(){
             Flowtime.toggleOverview(true);
             clickCount = 0;
+            if(!$("#chat-div").is(':visible')){
+                setTimeout(function(){
+                    showChat();
+                }, 1000);
+            }
           }, 100);
         }
         if(cancelDemoClick > 4){
@@ -337,6 +342,22 @@
           $("#code").show();
           canClick = true;
         }
+      }
+
+      function showChat(){
+        $("#chat-div").show();
+        var left=$(window).width()-$("#chat-div").width()-5,top=$(window).height()/2-20;
+        $("#chat-div").css({left:left,top:top});
+        var count = 0;
+        var tempInt = setInterval(function(){
+            $("#chat-div").css("left", count%2==0 ? left+5 : left-5);
+            ++count;
+            if(count>5){
+                count=0;
+                clearInterval(tempInt);
+                $("#chat-div").css("left", left);
+            }
+        }, 200);
       }
   </script>
   <div class="ft-default-progress">
@@ -415,8 +436,6 @@
     </div>
   </div>
   <div class="mPower"><span id="on" title="点击暂停" ontouchend="this.onclick();"></span><span id="off" title="点击播放" ontouchend="this.onclick();"></span></div>
-  <script>
-  window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"不经意相识, 或许是缘分，或许是注定；以后不管有怎么样，我都会在；就算全世界都都抛弃你，记得还有我；再累都不用害怕，因为你有我。记得在你最需要的时候想起我；我会一直陪着你。","bdMini":"2","bdMiniList":["tsina","qzone","weixin","sqq","tqq","qq","tqf","copy","bdysc","baidu","hi","share189","renren","fx","mail","mshare"],"bdPic":"//res.zhangge.net/love/img/lovers.jpg","bdStyle":"0","bdSize":"16"},"slide":{"type":"slide","bdImg":"1","bdPos":"right","bdTop":"200"},"image":{"viewList":["tsina","qzone","weixin","tqq"],"viewText":"唯美的爱，期待您的分享！","viewSize":"24"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","qzone","weixin","tqq"]}};
-  </script>
+  <img id="chat-div" onclick="location.href='http://luoaxin.com/chat.html';" ontouchend="this.onclick();" alt="留言" src="http://luoaxin.oss-cn-shanghai.aliyuncs.com/chat.png" />
 </body>
 </html>
