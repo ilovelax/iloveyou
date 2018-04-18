@@ -335,7 +335,7 @@
             if(!$("#chat-div").is(':visible')){
                 setTimeout(function(){
                     showChat();
-                }, 1000);
+                }, 3500);
             }
           }, 100);
         }
@@ -354,7 +354,7 @@
         var tempInt = setInterval(function(){
             $("#chat-div").css("left", count%2==0 ? left+5 : left-5);
             ++count;
-            if(count>5){
+            if(count>8){
                 count=0;
                 clearInterval(tempInt);
                 $("#chat-div").css("left", left);
