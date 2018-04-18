@@ -296,7 +296,6 @@
               Flowtime.next();
               if(location.href.indexOf("section-9/page-4") != -1){
                 clearInterval(intTime);
-                canClick = true;
               }
             }, 2500);
           }, 3000);
@@ -311,6 +310,9 @@
           nbfm = 60;runTime = 8000;
           setTimeout(function(){
             runXin();
+			setTimeout(function(){
+				canClick = true;
+			}, 1000);
           }, 10000);
         }
         document.title = titles[hash.substring(0, hash.indexOf("/"))] || "告白";
